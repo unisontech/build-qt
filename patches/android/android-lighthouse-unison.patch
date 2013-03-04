@@ -1,0 +1,39 @@
+--- a/mkspecs/android-g++/qmake.conf
++++ b/mkspecs/android-g++/qmake.conf
+@@ -100,7 +100,7 @@ QMAKE_CFLAGS_THREAD     = -D_REENTRANT
+ QMAKE_CFLAGS_HIDESYMS   = -fvisibility=hidden
+ 
+ QMAKE_CXX               = $$NDK_TOOLCHAIN_PATH/bin/$$NDK_TOOLS_PREFIX-g++
+-QMAKE_CXXFLAGS          = $$QMAKE_CFLAGS -DQT_NO_QWS_TRANSFORMED
++QMAKE_CXXFLAGS          = $$QMAKE_CFLAGS -DQT_NO_QWS_TRANSFORMED -DQT_STL -DQT_NO_STL_WCHAR
+ QMAKE_CXXFLAGS_WARN_ON	= $$QMAKE_CFLAGS_WARN_ON
+ QMAKE_CXXFLAGS_WARN_OFF	= $$QMAKE_CFLAGS_WARN_OFF
+ QMAKE_CXXFLAGS_RELEASE	+= $$QMAKE_CFLAGS_RELEASE
+@@ -159,7 +159,7 @@ QMAKE_LFLAGS_NOUNDEF    =  -Wl,--no-undefined
+ QMAKE_LFLAGS_RPATH      =  -Wl,-rpath=
+ 
+ 
+-QMAKE_LIBS              = -lstdc++ -lsupc++ -llog -lz -lm -ldl -lc -lgcc
++QMAKE_LIBS              = -lgnustl_static -lsupc++ -llog -lz -lm -ldl -lc -lgcc
+ QMAKE_LIBS_X11          =
+ QMAKE_LIBS_X11SM        =
+ QMAKE_LIBS_QT_THREAD    =
+--- a/src/android/cpp/qtmain_android.cpp
++++ b/src/android/cpp/qtmain_android.cpp
+@@ -81,10 +81,14 @@ static jboolean startQtApp(JNIEnv* env, jobject /*object*/, jstring paramsString
+     env->ReleaseStringUTFChars(environmentString, nativeString);
+     m_applicationParams=string.split('\t');
+     qDebug()<<"environmentString"<<string<<m_applicationParams;
+-    foreach (string, m_applicationParams)
++    //Fix: Doesn't work with CONFIG += no_keywords:
++    // foreach (string, m_applicationParams)
++    for (int i =0; i<m_applicationParams.size(); ++i)
++    {
++        QByteArray &string = m_applicationParams[i];
+         if (putenv(string.constData()))
+             qWarning()<<"Can't set environment"<<string;
+-
++    }
+     nativeString = env->GetStringUTFChars(paramsString, 0);
+     string=nativeString;
+     env->ReleaseStringUTFChars(paramsString, nativeString);

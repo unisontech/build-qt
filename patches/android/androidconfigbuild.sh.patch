@@ -1,0 +1,37 @@
+--- a/android/androidconfigbuild.sh
++++ b/android/androidconfigbuild.sh
+@@ -287,22 +287,23 @@ then
+ 		-nomake demos -no-multimedia -nomake examples -confirm-license \
+ 		$CFGOPTIONS -prefix $DEST_DIR_QT \
+ 		-openssl-source $OPENSSL_ROOT \
+-		-script -no-webkit || exit 1
++		-script -no-webkit -no-opengl || exit 1
+ fi
+ 
+ # This should loop until make succeeds, Workaround for Cygwin/MSYS
+ # couldn't commit heap memory error
+ if [ "$BUILD_QT" = "1" ]; then
+-	make -f $MAKEFILE -j 6 all QtJar
+-	while [ "$?" != "0" ]
+-	do
+-		if [ -f /usr/break-make ]; then
+-			echo "Detected break-make"
+-			rm -f /usr/break-make
+-			exit 1
+-		fi
+-		make -f $MAKEFILE -j 6 all QtJar
+-	done
++	make -f $MAKEFILE -j $CPU_CORES_COUNT all || exit 1
++    # Disabled for Unison: QtJar 
++	# while [ "$?" != "0" ]
++	# do
++		# if [ -f /usr/break-make ]; then
++			# echo "Detected break-make"
++			# rm -f /usr/break-make
++			# exit 1
++		# fi
++		# make -f $MAKEFILE -j 6 all QtJar
++	# done
+ fi
+ 
+ 

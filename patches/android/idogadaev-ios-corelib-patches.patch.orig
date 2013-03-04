@@ -1,0 +1,61 @@
+--- a/src/corelib/corelib.pro
++++ b/src/corelib/corelib.pro
+@@ -1,7 +1,7 @@
+ TARGET	   = QtCore
+ QPRO_PWD   = $$PWD
+ QT         =
+-DEFINES   += QT_BUILD_CORE_LIB QT_NO_USING_NAMESPACE
++DEFINES   += QT_BUILD_CORE_LIB QT_NO_USING_NAMESPACE QT_NO_ANIMATION QT_NO_CONCURRENT
+ win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x67000000
+ irix-cc*:QMAKE_CXXFLAGS += -no_prelink -ptused
+ 
+--- a/src/corelib/kernel/qeventdispatcher_unix.cpp
++++ b/src/corelib/kernel/qeventdispatcher_unix.cpp
+@@ -898,7 +898,8 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
+     d->interrupt = false;
+ 
+     // we are awake, broadcast it
+-    emit awake();
++    //idogadaev
++    //emit awake();
+     QCoreApplicationPrivate::sendPostedEvents(0, 0, d->threadData);
+ 
+     int nevents = 0;
+@@ -906,8 +907,9 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
+                           && !d->interrupt
+                           && (flags & QEventLoop::WaitForMoreEvents));
+ 
+-    if (canWait)
+-        emit aboutToBlock();
++    //idogadaev
++    //if (canWait)
++    //    emit aboutToBlock();
+ 
+     if (!d->interrupt) {
+         // return the maximum time we can wait for an event.
+--- a/src/corelib/kernel/qobject.cpp
++++ b/src/corelib/kernel/qobject.cpp
+@@ -1929,8 +1929,9 @@ void QObjectPrivate::setParent_helper(QObject *o)
+             } else {
+                 parentD->children.removeAt(index);
+                 if (sendChildEvents && parentD->receiveChildEvents) {
+-                    QChildEvent e(QEvent::ChildRemoved, q);
+-                    QCoreApplication::sendEvent(parent, &e);
++                    //idogadaev
++                    //QChildEvent e(QEvent::ChildRemoved, q);
++                    //QCoreApplication::sendEvent(parent, &e);
+                 }
+             }
+         }
+@@ -1946,8 +1947,9 @@ void QObjectPrivate::setParent_helper(QObject *o)
+         parent->d_func()->children.append(q);
+         if(sendChildEvents && parent->d_func()->receiveChildEvents) {
+             if (!isWidget) {
+-                QChildEvent e(QEvent::ChildAdded, q);
+-                QCoreApplication::sendEvent(parent, &e);
++                //idogadaev
++                //QChildEvent e(QEvent::ChildAdded, q);
++                //QCoreApplication::sendEvent(parent, &e);
+ #ifdef QT3_SUPPORT
+                 if (QCoreApplicationPrivate::useQt3Support) {
+                     if (parent->d_func()->pendingChildInsertedEvents.isEmpty()) {

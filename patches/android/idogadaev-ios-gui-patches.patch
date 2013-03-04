@@ -1,0 +1,94 @@
+--- a/src/gui/gui.pro
++++ b/src/gui/gui.pro
+@@ -1,7 +1,7 @@
+ TARGET     = QtGui
+ QPRO_PWD   = $$PWD
+ QT = core
+-DEFINES   += QT_BUILD_GUI_LIB QT_NO_USING_NAMESPACE
++DEFINES   += QT_BUILD_GUI_LIB QT_NO_USING_NAMESPACE QT_NO_ANIMATION
+ win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x65000000
+ irix-cc*:QMAKE_CXXFLAGS += -no_prelink -ptused
+ 
+@@ -24,22 +24,22 @@ symbian {
+ }
+ 
+ #modules
+-include(animation/animation.pri)
+-include(kernel/kernel.pri)
+-include(image/image.pri)
+-include(painting/painting.pri)
+-include(text/text.pri)
+-include(styles/styles.pri)
+-include(widgets/widgets.pri)
+-include(dialogs/dialogs.pri)
+-include(accessible/accessible.pri)
++include(animation/animation.pri)
++include(kernel/kernel.pri)
++include(image/image.pri)
++include(painting/painting.pri)
++include(text/text.pri)
++include(styles/styles.pri)
++include(widgets/widgets.pri)
++include(dialogs/dialogs.pri)
++include(accessible/accessible.pri)
+ include(itemviews/itemviews.pri)
+-include(inputmethod/inputmethod.pri)
+-include(graphicsview/graphicsview.pri)
+-include(util/util.pri)
++include(inputmethod/inputmethod.pri)
++include(graphicsview/graphicsview.pri)
++include(util/util.pri)
+ include(statemachine/statemachine.pri)
+-include(math3d/math3d.pri)
+-include(effects/effects.pri)
++include(math3d/math3d.pri)
++include(effects/effects.pri)
+ 
+ !contains(QT_CONFIG, android): include(egl/egl.pri)
+ win32:!wince*: DEFINES += QT_NO_EGL
+@@ -52,6 +52,9 @@ contains(DEFINES,QT_EVAL):include($$QT_SOURCE_TREE/src/corelib/eval.pri)
+ QMAKE_DYNAMIC_LIST_FILE = $$PWD/QtGui.dynlist
+ 
+ DEFINES += Q_INTERNAL_QAPP_SRC
++
++INCLUDEPATH += $$QT_SOURCE_TREE/src/3rdparty/harfbuzz/src
++
+ symbian {
+     TARGET.UID3=0x2001B2DD
+ 
+--- a/src/gui/kernel/qapplication_qpa.cpp
++++ b/src/gui/kernel/qapplication_qpa.cpp
+@@ -570,21 +570,25 @@ void qt_init(QApplicationPrivate *priv, int type)
+     }
+ #endif
+ 
+-#ifndef QT_NO_QWS_INPUTMETHODS
+-        qApp->setInputContext(new QDummyInputContext(qApp));
+-#endif
+-
+-    init_platform(QLatin1String(platformName), platformPluginPath);
+-
++    //idogadaev
++    ///////init_platform(QLatin1String(platformName), platformPluginPath);
+     init_plugins(pluginList);
+ 
+-    QColormap::initialize();
+-    QFont::initialize();
++    //idogadaev
++    //QColormap::initialize();
++    //QFont::initialize();
++    
++    
+ #ifndef QT_NO_CURSOR
+ //    QCursorData::initialize();
+ #endif
+ 
+     qApp->setObjectName(appName);
++
++#ifndef QT_NO_QWS_INPUTMETHODS
++	//idogadaev
++        //qApp->setInputContext(new QDummyInputContext(qApp));
++#endif
+ }
+ 
+ void qt_cleanup()

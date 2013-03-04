@@ -1,0 +1,11 @@
+--- a/src/corelib/corelib.pro
++++ b/src/corelib/corelib.pro
+@@ -1,7 +1,7 @@
+ TARGET	   = QtCore
+ QPRO_PWD   = $$PWD
+ QT         =
+-DEFINES   += QT_BUILD_CORE_LIB QT_NO_USING_NAMESPACE
++DEFINES   += QT_BUILD_CORE_LIB QT_NO_USING_NAMESPACE QT_NO_ANIMATION
+ win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x67000000
+ irix-cc*:QMAKE_CXXFLAGS += -no_prelink -ptused
+ 
