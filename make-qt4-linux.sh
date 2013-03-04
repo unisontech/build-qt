@@ -30,7 +30,7 @@ download_source()
 unpack_source()
 {
 	echo "-- Unpacking Qt $QT_VERSION sources"
-	tar -xzpf $QT_SOURCE_PKG || fail
+	tar -xzf $QT_SOURCE_PKG || fail
 	mv $QT_SOURCE_DIR $QT_INSTALL_DIR/src
 }
 
