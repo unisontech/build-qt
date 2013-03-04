@@ -75,7 +75,7 @@ build_source()
     rm -rf $QT_INSTALL_DIR/doc/src
 }
 
-pack_artifact
+pack_artifact()
 {
 	if [ ! -d artifact ] ; then
 		mkdir artifact
