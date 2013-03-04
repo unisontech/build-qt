@@ -59,7 +59,7 @@
 @REM ---[ Unpack Sources            ]---
 @REM ---[ pls note patch dependency ]---
 :patch_source
-	@patch -p1 patches/windows/qt_release_pdbs_%MSVC_VERSION%.patch || @call :fail
+	@patch -p1 < patches/windows/qt_release_pdbs_%MSVC_VERSION%.patch || @call :fail
 	@exit /B 0
 
 
