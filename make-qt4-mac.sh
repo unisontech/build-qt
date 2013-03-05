@@ -68,11 +68,16 @@ build_source()
 
 	echo "-- Installing Qt $QT_VERSION"
 	make install || fail
+
 	find $QT_INSTALL_DIR/mkspecs/macx-* -name Info.plist.app -print0 | xargs -0 sed -i "" 's/com.yourcompany./com.unison./g' || fail
 
+	# qt_menu.nib is mandatory for mac
+	mkdir -p $QT_INSTALL_DIR/lib/Resources
+	cp -R src/gui/mac/qt_menu.nib $QT_INSTALL_DIR/lib/Resources || fail
+
 	echo "-- Stopping crazy disk usage"
-    rm -rf $QT_INSTALL_DIR/doc/html
-    rm -rf $QT_INSTALL_DIR/doc/src
+	rm -rf $QT_INSTALL_DIR/doc/html
+	rm -rf $QT_INSTALL_DIR/doc/src
 }
 
 pack_artifact()
