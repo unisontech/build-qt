@@ -2,18 +2,17 @@
 @set PLATFORM=win32-msvc%MSVC_VERSION%
 @set QT_VERSION=4.8.4
 @set QT_SOURCE_DIR=qt-everywhere-opensource-src-%QT_VERSION%
-@set QT_SOURCE_PKG=qt-everywhere-opensource-src-%QT_VERSION%.tar.gz
-@set QT_LIB_PKG=qt-windows-%QT_VERSION%.tar.gz
-@set QT_INSTALL_DIR=%PWD%
+@set QT_SOURCE_PKG=qt-everywhere-opensource-src-%QT_VERSION%.zip
+@set QT_LIB_PKG=qt-windows-%QT_VERSION%.tar.bz
+@set QT_INSTALL_DIR=%CD%
 
 
-@call :setup_environment || @goto end
-@call :download_source || @goto end
-@call :unpack_source || @goto end
+@call :download_source
+@call :unpack_source
 
-@pushd %QT_INSTALL_DIR%/src
-@call :patch_source || @goto end
-@call :build_source || @goto end
+@pushd %QT_INSTALL_DIR%\src
+@call :setup_environment
+@call :build_source
 @popd
 
 @call :pack_artifact
@@ -44,22 +43,26 @@
 	@exit /B 0
 
 
-@REM ---------------------------------
-@REM ---[ Unpack Sources          ]---
-@REM ---[ pls note tar dependency ]---
+@REM -----------------------------------
+@REM ---[ Unpack Sources            ]---
+@REM ---[ pls note unzip dependency ]---
 :unpack_source
 	@echo -- Unpacking Qt %QT_VERSION% sources
-	@tar -xzf %QT_SOURCE_PKG% || @call :fail
-	@mv %QT_SOURCE_DIR% %QT_INSTALL_DIR%/src
+		@if exist %QT_INSTALL_DIR%/src (
+		@rm -rf %QT_INSTALL_DIR%/src
+	)
+	@unzip -qq -o %QT_SOURCE_PKG%
+	@REM @call :patch_source || @goto end
+	@mv -f %QT_SOURCE_DIR% %QT_INSTALL_DIR%/src
 	@exit /B 0
 
 
 
 @REM -----------------------------------
-@REM ---[ Unpack Sources            ]---
+@REM ---[ Patch  Sources            ]---
 @REM ---[ pls note patch dependency ]---
 :patch_source
-	@patch -p1 < patches/windows/qt_release_pdbs_%MSVC_VERSION%.patch || @call :fail
+	@patch -p0 < patches/windows/qt_release_pdbs_%MSVC_VERSION%.patch || @call :fail
 	@exit /B 0
 
 
@@ -76,7 +79,6 @@
 		-arch x86 ^
 		-static ^
 		-fast ^
-		-silent ^
 		-no-exceptions ^
 		-no-stl ^
 		-no-qt3support ^
@@ -90,14 +92,13 @@
 		-nomake demos ^
 		-nomake examples ^
 		-nomake translations ^
-		-nomake tools ^
-		|| @call :fail
+		-nomake tools
 
 	@echo -- Building Qt %QT_VERSION%
-	@nmake || @call :fail
+	@nmake
 
 	@echo -- Installing Qt %QT_VERSION%
-	@nmake install || @call :fail
+	@nmake install
 
 	@echo -- Stopping crazy disk usage
 	@rm -rf %QT_INSTALL_DIR%/doc/html
@@ -111,7 +112,9 @@
 		@mkdir artifact
 	)
 	@echo -- FIXME: I can't pack artifact yet :(
-	@REM @tar -czf artifact/$QT_LIB_PKG ../${QT_INSTALL_DIR##*/}/bin ../${QT_INSTALL_DIR##*/}/lib ../${QT_INSTALL_DIR##*/}/include ../${QT_INSTALL_DIR##*/}/plugins || fail
+	@pushd %QT_INSTALL_DIR%
+	@tar -czf artifact/%QT_LIB_PKG% bin lib include plugins || @call :fail
+	@exit /B 0
 
 
 @REM ---[ Failure ]---
