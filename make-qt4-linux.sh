@@ -79,7 +79,9 @@ pack_artifact()
 	if [ ! -d artifact ] ; then
 		mkdir artifact
 	fi
-	tar -czf artifact/$QT_LIB_PKG ../${QT_INSTALL_DIR##*/}/bin ../${QT_INSTALL_DIR##*/}/lib ../${QT_INSTALL_DIR##*/}/include ../${QT_INSTALL_DIR##*/}/plugins || fail
+	pushd ..
+	tar -czf ${QT_INSTALL_DIR##*/}/artifact/$QT_LIB_PKG ${QT_INSTALL_DIR##*/}/bin ${QT_INSTALL_DIR##*/}/lib ${QT_INSTALL_DIR##*/}/include ${QT_INSTALL_DIR##*/}/plugins || fail
+	popd
 }
 
 main()
