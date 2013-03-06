@@ -1,0 +1,45 @@
+--- qt-everywhere-opensource-src-4.8.4\src\network\socket\qlocalserver_win.orig.cpp
++++ qt-everywhere-opensource-src-4.8.4\src\network\socket\qlocalserver_win.cpp
+@@ -45,6 +45,8 @@
+ 
+ #include <qdebug.h>
+ 
++#pragma comment (lib,  "advapi32.lib")
++
+ // The buffer size need to be 0 otherwise data could be
+ // lost if the socket that has written data closes the connection
+ // before it is read.  Pipewriter is used for write buffering.
+@@ -55,6 +57,7 @@
+ 
+ QT_BEGIN_NAMESPACE
+ 
++
+ bool QLocalServerPrivate::addListener()
+ {
+     // The object must not change its address once the
+@@ -62,6 +65,16 @@
+     listeners << Listener();
+     Listener &listener = listeners.last();
+ 
++    BYTE sd[SECURITY_DESCRIPTOR_MIN_LENGTH];
++    SECURITY_ATTRIBUTES sa;
++    sa.nLength = sizeof(sa);
++    sa.bInheritHandle = TRUE;
++    sa.lpSecurityDescriptor = &sd;
++
++    InitializeSecurityDescriptor(&sd,SECURITY_DESCRIPTOR_REVISION);
++    SetSecurityDescriptorDacl(&sd,TRUE,0,FALSE);
++
++
+     listener.handle = CreateNamedPipe(
+                  (const wchar_t *)fullServerName.utf16(), // pipe name
+                  PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,       // read/write access
+@@ -72,7 +85,7 @@
+                  BUFSIZE,                  // output buffer size
+                  BUFSIZE,                  // input buffer size
+                  3000,                     // client time-out
+-                 NULL);
++                 &sa);
+ 
+     if (listener.handle == INVALID_HANDLE_VALUE) {
+         setError(QLatin1String("QLocalServerPrivate::addListener"));

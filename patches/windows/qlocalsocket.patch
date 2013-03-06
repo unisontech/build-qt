@@ -1,0 +1,27 @@
+--- qt-everywhere-opensource-src-4.8.4\src\network\socket\qlocalsocket_win.orig.cpp
++++ qt-everywhere-opensource-src-4.8.4\src\network\socket\qlocalsocket_win.cpp
+@@ -155,12 +155,23 @@
+     // Try to open a named pipe
+     HANDLE localSocket;
+     forever {
++
++
++        BYTE sd[SECURITY_DESCRIPTOR_MIN_LENGTH];
++        SECURITY_ATTRIBUTES sa;
++        sa.nLength = sizeof(sa);
++        sa.bInheritHandle = TRUE;
++        sa.lpSecurityDescriptor = &sd;
++
++        InitializeSecurityDescriptor(&sd,SECURITY_DESCRIPTOR_REVISION);
++        SetSecurityDescriptorDacl(&sd,TRUE,0,FALSE);
++
+         DWORD permissions = (openMode & QIODevice::ReadOnly) ? GENERIC_READ : 0;
+         permissions |= (openMode & QIODevice::WriteOnly) ? GENERIC_WRITE : 0;
+         localSocket = CreateFile((const wchar_t *)d->fullServerName.utf16(),   // pipe name
+                                  permissions,
+                                  0,              // no sharing
+-                                 NULL,           // default security attributes
++                                 &sa,           // default security attributes
+                                  OPEN_EXISTING,  // opens existing pipe
+                                  FILE_FLAG_OVERLAPPED,
+                                  NULL);          // no template file

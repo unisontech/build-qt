@@ -1,3 +1,5 @@
+@echo off
+
 @set MSVC_VERSION=2010
 @set PLATFORM=win32-msvc%MSVC_VERSION%
 @set QT_VERSION=4.8.4
@@ -5,24 +7,138 @@
 @set QT_SOURCE_PKG=qt-everywhere-opensource-src-%QT_VERSION%.zip
 @set QT_LIB_PKG=qt-windows-%QT_VERSION%.tar.bz
 @set QT_INSTALL_DIR=%CD%
+@set PATCHES_DIR=patches\windows
+@set BUILD_TYPE=debug
+@set INSTALL_DIR=%CD%
+@set _=%CD%
+
+if "%1%"=="release" @set BUILD_TYPE=release
+if "%1%"=="debug-and-release" @set BUILD_TYPE=debug-and-release
+
+@if "%2%"=="2008" @set MSVC_VERSION=2008
+
+@call :print_info
+
+call :setup_environment_if_need
+
+if exist %QT_SOURCE_DIR% goto Build
+
+if exist %QT_SOURCE_PKG% goto Unpack
+
+:Download
+echo -- Downloading Qt %QT_VERSION% ...
+curl -L http://releases.qt-project.org/qt4/source/%QT_SOURCE_PKG% --O %QT_SOURCE_PKG% || goto error
+
+:Unpack
+echo -- Unpacking ...
+@unzip -qq -o %QT_SOURCE_PKG%
+
+:Patch
+echo -- Patching ...
+patch --verbose -p0 < %PATCHES_DIR%\qt_release_pdbs_vc9.patch    || goto error
+patch --verbose -p0 < %PATCHES_DIR%\qt_release_pdbs_vc10.patch   || goto error
+patch --verbose -p0 < %PATCHES_DIR%\qlocalserver.patch           || goto error
+patch --verbose -p0 < %PATCHES_DIR%\qlocalsocket.patch           || goto error
+
+:Build
+echo -- Building %BUILD_TYPE% build ...
+cd %QT_SOURCE_DIR%
+mkdir -p %INSTALL_DIR%
+
+::-openssl-linked ^
+::-graphicssystem opengl
+::-D -I
+::-L -l
+::-system-proxies
+configure ^
+	-platform win32-msvc%MSVC_VERSION% ^
+	-confirm-license ^
+	-%BUILD_TYPE% ^
+	-opensource ^
+	-static ^
+	-mp ^
+	^
+	-rtti ^
+    -mmx ^
+	-3dnow ^
+	-sse ^
+	-sse2 ^
+	-fast ^
+	-stl ^
+	-exceptions ^
+	^
+	-qt-zlib ^
+	-qt-libpng ^
+	-qt-libmng ^
+	-qt-libjpeg ^
+	-declarative ^
+	-declarative-debug ^
+	-script ^
+	-scripttools ^
+	^
+	-no-libtiff ^
+	-no-accessibility ^
+    -no-qt3support ^
+    -no-dsp ^
+	-no-vcproj ^
+	-no-incredibuild-xge ^
+	-no-ltcg ^
+    -no-webkit ^
+	-no-openvg ^
+	-no-style-cleanlooks ^
+    -no-style-cde ^
+	-no-dbus ^
+    -nomake demos ^
+	-nomake examples ^
+	-nomake translations ^
+	-no-xmlpatterns ^
+    -no-multimedia ^
+	-no-audio-backend ^
+	-no-phonon ^
+	-no-phonon-backend ^
+	-no-style-motif ^
+	-no-s60 ^
+    || goto error
+
+nmake || goto error
+nmake install || goto error
+cd %_%
+echo -- QT build done!
+
+:TearDown
+@echo -- Stopping crazy disk usage
+@rm -rf %QT_INSTALL_DIR%\doc\html
+@rm -rf %QT_INSTALL_DIR%\doc\src
+
+:Archive
+echo -- Packaging ...
+@if not exist %QT_INSTALL_DIR%\artifact (
+	@mkdir %QT_INSTALL_DIR%\artifact
+)
+cd %QT_SOURCE_DIR%
+tar -czvf artifact\%QT_LIB_PKG% bin lib include plugins
+cd %_%
+
+:Done
+echo -- Everything is done! Artifact is in %QT_INSTALL_DIR%\artifact\%QT_LIB_PKG%
+exit /B 0
 
 
-@call :download_source
-@call :unpack_source
+:: --- Helpers
 
-@pushd %QT_INSTALL_DIR%\src
-@call :setup_environment
-@call :build_source
-@popd
+:print_info
+	@echo -- Build type is %BUILD_TYPE%
+	@echo -- MSVC version: %MSVC_VERSION%
+	exit /B 0
 
-@call :pack_artifact
+:setup_environment_if_need
+	@if not "%ENVIRONMENT_DONE%" == "OK" (
+		@echo -- Setting up MSVC environment
+		@call :setup_environment
+		@set ENVIRONMENT_DONE=OK
+	)
+	@exit /B 0
 
-@echo -- Qt %QT_VERSION% has been successfully built
-@goto end
-@REM -----------------------------------------------------------------------
-
-
-@REM ---[ Setup Environment ]---
 :setup_environment
 	@if %MSVC_VERSION% == 2008 (
 		@call "%VS90COMNTOOLS%\vsvars32.bat"
@@ -31,95 +147,11 @@
 	)
 	@exit /B 0
 
+:error
+cd %_%
+echo -- Qt build FAILED
+exit /B 1
 
-@REM ---------------------------------
-@REM ---[ Download Sources         ]--
-@REM ---[ pls note curl dependency ]--
-:download_source
-	@if not exist %QT_SOURCE_PKG% (
-		@echo -- Downloading Qt %QT_VERSION% sources
-		@curl -L http://releases.qt-project.org/qt4/source/%QT_SOURCE_PKG% --O %QT_SOURCE_PKG% || @call :fail
-	)
-	@exit /B 0
-
-
-@REM -----------------------------------
-@REM ---[ Unpack Sources            ]---
-@REM ---[ pls note unzip dependency ]---
-:unpack_source
-	@echo -- Unpacking Qt %QT_VERSION% sources
-		@if exist %QT_INSTALL_DIR%/src (
-		@rm -rf %QT_INSTALL_DIR%/src
-	)
-	@unzip -qq -o %QT_SOURCE_PKG%
-	@REM @call :patch_source || @goto end
-	@mv -f %QT_SOURCE_DIR% %QT_INSTALL_DIR%/src
-	@exit /B 0
-
-
-
-@REM -----------------------------------
-@REM ---[ Patch  Sources            ]---
-@REM ---[ pls note patch dependency ]---
-:patch_source
-	@patch -p0 < patches/windows/qt_release_pdbs_%MSVC_VERSION%.patch || @call :fail
-	@exit /B 0
-
-
-@REM ---------------------------------
-@REM ---[ Build Sources           ]---
-:build_source
-	@echo -- Configuring Qt %QT_VERSION%
-	@configure.exe ^
-		-confirm-license ^
-		-opensource ^
-		-prefix %QT_INSTALL_DIR% ^
-		-release ^
-		-platform %PLATFORM% ^
-		-arch x86 ^
-		-static ^
-		-fast ^
-		-no-exceptions ^
-		-no-stl ^
-		-no-qt3support ^
-		-no-webkit ^
-		-no-audio-backend ^
-		-no-multimedia ^
-		-no-phonon-backend ^
-		-no-phonon ^
-		-no-dbus ^
-		-no-accessibility ^
-		-nomake demos ^
-		-nomake examples ^
-		-nomake translations ^
-		-nomake tools
-
-	@echo -- Building Qt %QT_VERSION%
-	@nmake
-
-	@echo -- Installing Qt %QT_VERSION%
-	@nmake install
-
-	@echo -- Stopping crazy disk usage
-	@rm -rf %QT_INSTALL_DIR%/doc/html
-	@rm -rf %QT_INSTALL_DIR%/doc/src
-	@exit /B 0
-
-@REM ---------------------------------
-@REM ---[ Pack Artifact           ]---
-:pack_artifact
-	@if not exist artifact (
-		@mkdir artifact
-	)
-	@echo -- FIXME: I can't pack artifact yet :(
-	@pushd %QT_INSTALL_DIR%
-	@tar -czf artifact/%QT_LIB_PKG% bin lib include plugins || @call :fail
-	@exit /B 0
-
-
-@REM ---[ Failure ]---
-:fail
-	@echo -- Qt %QT_VERSION% build failed
-	@exit /B 1
-
-:end
+:env_error
+echo Environment variable OPEN_LIBS is not found
+exit /B 1

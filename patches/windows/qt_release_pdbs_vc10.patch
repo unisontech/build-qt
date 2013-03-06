@@ -17,7 +17,7 @@
  QMAKE_CFLAGS_LTCG       = -GL
  QMAKE_CFLAGS_MP         = -MP
 @@ -55,10 +55,10 @@
- QMAKE_RUN_CXX_IMP_BATCH = $(CXX) -c $(CXXFLAGS) $(INCPATH) -Fo$@ @&lt;&lt;
+ QMAKE_RUN_CXX_IMP_BATCH = $(CXX) -c $(CXXFLAGS) $(INCPATH) -Fo$@ @<<
  
  QMAKE_LINK              = link
 -QMAKE_LFLAGS            = /NOLOGO /DYNAMICBASE /NXCOMPAT
