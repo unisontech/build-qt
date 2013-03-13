@@ -1,19 +1,21 @@
 @echo off
 
+:: Default installation path
+@if "OPENSSL_PATH"=="" @set OPENSSL_PATH=C:\OpenSSL-Win32
 @set MSVC_VERSION=2010
 @set PLATFORM=win32-msvc%MSVC_VERSION%
 @set QT_VERSION=4.8.4
 @set QT_SOURCE_DIR=qt-everywhere-opensource-src-%QT_VERSION%
 @set QT_SOURCE_PKG=qt-everywhere-opensource-src-%QT_VERSION%.zip
-@set QT_LIB_PKG=qt-windows-%QT_VERSION%.tar.bz
+@set QT_LIB_PKG=qt-windows-%QT_VERSION%.tar.gz
 @set QT_INSTALL_DIR=%CD%
 @set PATCHES_DIR=patches\windows
-@set BUILD_TYPE=debug
+@set BUILD_TYPE=debug-and-release
 @set INSTALL_DIR=%CD%
 @set _=%CD%
 
 if "%1%"=="release" @set BUILD_TYPE=release
-if "%1%"=="debug-and-release" @set BUILD_TYPE=debug-and-release
+if "%1%"=="debug" @set BUILD_TYPE=debug
 
 @if "%2%"=="2008" @set MSVC_VERSION=2008
 
@@ -43,7 +45,9 @@ patch --verbose -p0 < %PATCHES_DIR%\qlocalsocket.patch           || goto error
 :Build
 echo -- Building %BUILD_TYPE% build ...
 cd %QT_SOURCE_DIR%
-mkdir -p %INSTALL_DIR%
+@if not exist %INSTALL_DIR% (
+	mkdir %INSTALL_DIR%
+)
 
 ::-openssl-linked ^
 ::-graphicssystem opengl
@@ -67,6 +71,8 @@ configure ^
 	-stl ^
 	-exceptions ^
 	^
+	-system-proxies ^
+	-openssl-linked ^
 	-qt-zlib ^
 	-qt-libpng ^
 	-qt-libmng ^
@@ -98,6 +104,9 @@ configure ^
 	-no-phonon-backend ^
 	-no-style-motif ^
 	-no-s60 ^
+	-I %OPENSSL_PATH%\include ^
+	-L %OPENSSL_PATH%\lib ^
+	-L %OPENSSL_PATH%\lib\VC\static ^
     || goto error
 
 nmake || goto error
@@ -116,7 +125,8 @@ echo -- Packaging ...
 	@mkdir %QT_INSTALL_DIR%\artifact
 )
 cd %QT_SOURCE_DIR%
-tar -czvf artifact\%QT_LIB_PKG% bin lib include plugins
+:: HACK: we use .. here because we know dirs... but we should not...
+tar -czvf ../artifact/%QT_LIB_PKG% bin lib include plugins || goto error
 cd %_%
 
 :Done
