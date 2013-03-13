@@ -15,6 +15,7 @@
 @set BUILD_TYPE=debug-and-release
 @set INSTALL_DIR=%CD%
 @set _=%CD%
+@set QT_DIR=qt
 
 if "%1%"=="release" @set BUILD_TYPE=release
 if "%1%"=="debug" @set BUILD_TYPE=debug
@@ -50,10 +51,8 @@ patch --verbose -p0 < %PATCHES_DIR%\qlocalsocket.patch           || goto error
 
 :Build
 echo -- Building %BUILD_TYPE% build ...
-cd %QT_SOURCE_DIR%
-@if not exist %INSTALL_DIR% (
-	mkdir %INSTALL_DIR%
-)
+mv %QT_SOURCE_DIR% %QT_DIR%
+cd %QT_DIR%
 
 ::-openssl-linked ^
 ::-graphicssystem opengl
@@ -122,17 +121,16 @@ echo -- QT build done!
 
 :TearDown
 @echo -- Stopping crazy disk usage
-@rm -rf %QT_INSTALL_DIR%\doc\html
-@rm -rf %QT_INSTALL_DIR%\doc\src
+@rm -rf %QT_DIR%\doc\html
+@rm -rf %QT_DIR%\doc\src
 
 :Archive
 echo -- Packaging ...
-@if not exist %QT_INSTALL_DIR%\artifact (
-	@mkdir %QT_INSTALL_DIR%\artifact
+@if not exist %_%\artifact (
+	@mkdir %_%\artifact
 )
-cd %QT_SOURCE_DIR%
-:: HACK: we use .. here because we know dirs... but we should not...
-tar -czvf ../artifact/%QT_LIB_PKG% bin lib include plugins || goto error
+cd %_%
+tar -czvf artifact/%QT_LIB_PKG% %QT_DIR%/bin %QT_DIR%/lib %QT_DIR%/include %QT_DIR%/plugins || goto error
 cd %_%
 
 :Done
