@@ -9,7 +9,7 @@ QT_VERSION="4.8.4"
 QT_SOURCE_DIR="qt-everywhere-opensource-src-$QT_VERSION"
 QT_SOURCE_PKG="qt-everywhere-opensource-src-$QT_VERSION.tar.gz"
 QT_LIB_PKG="qt-mac-$QT_VERSION.tar.gz"
-QT_INSTALL_DIR=$PWD
+QT_INSTALL_DIR=$PWD/qt
 CPU_CORES_COUNT=$(expr $(sysctl -A 2>&1 |grep 'hw\.ncpu:' |sed "s/^hw\.ncpu: \([0-9]*\)/\1/") + 1)
 
 fail()
@@ -31,7 +31,7 @@ unpack_source()
 {
 	echo "-- Unpacking Qt $QT_VERSION sources"
 	tar -xzf $QT_SOURCE_PKG || fail
-	mv $QT_SOURCE_DIR $QT_INSTALL_DIR/src
+	mv $QT_SOURCE_DIR $QT_INSTALL_DIR
 }
 
 build_source()
@@ -85,9 +85,7 @@ pack_artifact()
 	if [ ! -d artifact ] ; then
 		mkdir artifact
 	fi
-	pushd ..
-	tar -czf ${QT_INSTALL_DIR##*/}/artifact/$QT_LIB_PKG ${QT_INSTALL_DIR##*/}/bin ${QT_INSTALL_DIR##*/}/lib ${QT_INSTALL_DIR##*/}/include ${QT_INSTALL_DIR##*/}/plugins || fail
-	popd
+	tar -czf artifact/$QT_LIB_PKG ${QT_INSTALL_DIR##*/}/bin ${QT_INSTALL_DIR##*/}/lib ${QT_INSTALL_DIR##*/}/include ${QT_INSTALL_DIR##*/}/plugins || fail
 }
 
 main()
@@ -95,7 +93,7 @@ main()
 	download_source
 	unpack_source
 
-	pushd $QT_INSTALL_DIR/src
+	pushd $QT_INSTALL_DIR
 	build_source
 	popd
 	
