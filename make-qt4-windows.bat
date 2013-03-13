@@ -1,8 +1,10 @@
 @echo off
 
 :: Default installation path
-@if "OPENSSL_PATH"=="" @set OPENSSL_PATH=C:\OpenSSL-Win32
-@set MSVC_VERSION=2010
+@if "%OPENSSL_PATH%"=="" @set OPENSSL_PATH=C:\OpenSSL-Win32
+@if "%1%"=="2008" @set MSVC_VERSION=2008
+@if "%2%"=="2008" @set MSVC_VERSION=2008
+@if "%MSVC_VERSION%"=="" @set MSVC_VERSION=2010
 @set PLATFORM=win32-msvc%MSVC_VERSION%
 @set QT_VERSION=4.8.4
 @set QT_SOURCE_DIR=qt-everywhere-opensource-src-%QT_VERSION%
@@ -17,7 +19,11 @@
 if "%1%"=="release" @set BUILD_TYPE=release
 if "%1%"=="debug" @set BUILD_TYPE=debug
 
-@if "%2%"=="2008" @set MSVC_VERSION=2008
+@if not exist %OPENSSL_PATH% (
+	@echo OpenSSL Win32 was not found. Please make sure you have it installed or you have OPENSSL_PATH env variable pointing to your custom installation directory
+	@echo You can install OpenSSL Win32 by downloading it from http://slproweb.com/download/Win32OpenSSL-1_0_1e.exe
+	goto error
+)
 
 @call :print_info
 
@@ -160,8 +166,4 @@ exit /B 0
 :error
 cd %_%
 echo -- Qt build FAILED
-exit /B 1
-
-:env_error
-echo Environment variable OPEN_LIBS is not found
 exit /B 1
