@@ -9,7 +9,7 @@
 @set QT_VERSION=4.8.4
 @set QT_SOURCE_DIR=qt-everywhere-opensource-src-%QT_VERSION%
 @set QT_SOURCE_PKG=qt-everywhere-opensource-src-%QT_VERSION%.zip
-@set QT_LIB_PKG=qt-windows-%QT_VERSION%.tar.gz
+@set QT_LIB_PKG=qt-windows.tar.gz
 @set QT_INSTALL_DIR=%CD%
 @set PATCHES_DIR=patches\windows
 @set BUILD_TYPE=debug-and-release
@@ -130,7 +130,8 @@ echo -- Packaging ...
 	@mkdir %_%\artifact
 )
 cd %_%
-tar -czvf artifact/%QT_LIB_PKG% %QT_DIR%/bin %QT_DIR%/lib %QT_DIR%/include %QT_DIR%/plugins || goto error
+tar -czvf artifact/%QT_LIB_PKG% %QT_DIR%/bin %QT_DIR%/lib %QT_DIR%/include %QT_DIR%/plugins
+ls artifact/%QT_LIB_PKG% || goto error
 cd %_%
 
 :Done
