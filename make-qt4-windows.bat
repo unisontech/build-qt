@@ -87,6 +87,8 @@ configure ^
 	-script ^
 	-scripttools ^
 	^
+	-plugin-sql-sqlite ^
+	^
 	-no-libtiff ^
 	-no-accessibility ^
     -no-qt3support ^
