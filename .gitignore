@@ -2,3 +2,10 @@
 *~
 *.swp
 *.swap
+
+# build artifacts
+qt-armv7
+qt-i386
+artifact
+artifacts
+qt-everywhere-opensource-src-*.tar.gz

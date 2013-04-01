@@ -1,0 +1,13 @@
+--- qmake.conf	2013-04-01 13:58:56.000000000 +0400
++++ qmake.conf	2013-04-01 13:55:13.000000000 +0400
+@@ -19,8 +19,8 @@
+ lessThan(QMAKE_IOS_XCODE_VERSION, "4.3"): error("This mkspec requires Xcode 4.3 or later")
+ 
+ # iOS build tools
+-QMAKE_CC                = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2
+-QMAKE_CXX               = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++-4.2
++QMAKE_CC                = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc
++QMAKE_CXX               = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++
+ QMAKE_FIX_RPATH         = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/install_name_tool -id
+ QMAKE_AR                = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ar cq
+ QMAKE_RANLIB            = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ranlib -s
