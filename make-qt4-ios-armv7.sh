@@ -35,6 +35,8 @@ unpack_source()
 unpack_openssl()
 {
 	echo "-- Unpacking openssl sources for armv7"
+	rm -rf ./openssl
+	mkdir ./openssl
 	tar -xzf openssl-ios-armv7.tar.gz -C ./openssl || fail
 }
 

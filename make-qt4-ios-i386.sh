@@ -35,6 +35,8 @@ unpack_source()
 unpack_openssl()
 {
 	echo "-- Unpacking openssl sources for i386"
+	rm -rf ./openssl
+	mkdir ./openssl
 	tar -xzf openssl-ios-i386.tar.gz -C ./openssl || fail
 }
 
