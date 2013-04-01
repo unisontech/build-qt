@@ -35,11 +35,7 @@ unpack_source()
 unpack_openssl()
 {
 	echo "-- Unpacking openssl sources for armv7"
-	pushd artifacts
-
-	tar -xzf openssl-ios-armv7.tar.gz || fail
-
-	popd
+	tar -xzf openssl-ios-armv7.tar.gz -C ./openssl || fail
 }
 
 patch_source()
@@ -56,7 +52,7 @@ build_source()
 {
 	pushd $QT_INSTALL_DIR
 
-	SSL_DIR=$QT_INSTALL_DIR/../artifacts/ios-armv7
+	SSL_DIR=$QT_INSTALL_DIR/../openssl/ios-armv7
 
 	XCODE_ROOT=`xcode-select --print-path`
 

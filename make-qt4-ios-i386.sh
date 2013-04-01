@@ -35,11 +35,7 @@ unpack_source()
 unpack_openssl()
 {
 	echo "-- Unpacking openssl sources for i386"
-	pushd artifacts
-
-	tar -xzf openssl-ios-i386.tar.gz || fail
-
-	popd
+	tar -xzf openssl-ios-i386.tar.gz -C ./openssl || fail
 }
 
 patch_source()
@@ -55,7 +51,7 @@ build_source()
 {
 	pushd $QT_INSTALL_DIR
 
-	SSL_DIR=$QT_INSTALL_DIR/../artifacts/ios-i386
+	SSL_DIR=$QT_INSTALL_DIR/../openssl/ios-i386
 
 	XCODE_ROOT=`xcode-select --print-path`
 
