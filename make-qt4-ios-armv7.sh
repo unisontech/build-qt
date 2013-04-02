@@ -113,6 +113,17 @@ build_source()
 	popd
 }
 
+imitate_uic()
+{
+	# As long as we don't build QtGui, we don't have UIC built.
+	# We need to imitate it in order to let QMAKE find_qt work properly
+
+	echo "-- Imitating UIC for armv7"
+
+	echo "#!/bin/bash" > $QT_INSTALL_DIR/bin/uic
+	chmod +x $QT_INSTALL_DIR/bin/uic
+}
+
 pack_artifact()
 {
 	if [ ! -d artifact ] ; then
@@ -128,6 +139,7 @@ main()
 	unpack_openssl
 	patch_source
 	build_source
+	imitate_uic
 	pack_artifact
 
 	echo "-- Qt $QT_VERSION for armv7 has been successfully built"
