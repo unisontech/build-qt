@@ -3,7 +3,6 @@
 # copied from mac version
 
 QT_VERSION="4.8.4"
-IOS_SDK_VERSION="6.0"
 QT_SOURCE_DIR="qt-everywhere-opensource-src-$QT_VERSION"
 QT_SOURCE_PKG="qt-everywhere-opensource-src-$QT_VERSION.tar.gz"
 QT_LIB_PKG="qt-ios-$QT_VERSION-armv7.tar.gz"
@@ -97,7 +96,6 @@ build_source()
 	-nomake tools \
 	-I ${SSL_DIR}/include \
 	-L ${SSL_DIR}/lib \
-	-I ${XCODE_ROOT}/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS${IOS_SDK_VERSION}.sdk/System/Library/Frameworks/Security.framework/Headers \
 	|| fail
 
 	echo "-- Building Qt $QT_VERSION for armv7"
