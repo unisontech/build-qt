@@ -9,3 +9,4 @@ qt-i386
 artifact
 artifacts
 qt-everywhere-opensource-src-*.tar.gz
+openssl*

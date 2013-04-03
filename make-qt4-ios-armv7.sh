@@ -3,7 +3,7 @@
 # copied from mac version
 
 QT_VERSION="4.8.4"
-IOS_SDK_VERSION="6.1"
+IOS_SDK_VERSION="6.0"
 QT_SOURCE_DIR="qt-everywhere-opensource-src-$QT_VERSION"
 QT_SOURCE_PKG="qt-everywhere-opensource-src-$QT_VERSION.tar.gz"
 QT_LIB_PKG="qt-ios-$QT_VERSION-armv7.tar.gz"
