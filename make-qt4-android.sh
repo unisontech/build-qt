@@ -5,10 +5,12 @@
 # 3. ~/devel/build-qt/make-qt4-android.sh
 # 4. drink beer
 
+SOURCE_FORMAT="tar"
+UNTAR_KEYS="xf"
 QT_BRANCH="beta2"
 QT_VERSION="4.8.2"
 QT_SOURCE_DIR="src"
-QT_SOURCE_PKG="$PWD/qt-necessitas-$QT_BRANCH.tar.gz"
+QT_SOURCE_PKG="$PWD/qt-necessitas-$QT_BRANCH.${SOURCE_FORMAT}"
 QT_LIB_PKG="qt-android-$QT_BRANCH.tar.gz"
 QT_INSTALL_DIR=$PWD
 CPU_CORES_COUNT=$(expr $(sysctl -A 2>&1 |grep 'hw\.ncpu:' |sed "s/^hw\.ncpu: \([0-9]*\)/\1/") + 1)
@@ -24,18 +26,18 @@ download_source()
 {
 	if [[ $1 == "-f" || ! -f $QT_SOURCE_PKG ]] ; then
 		echo "-- Downloading Qt $QT_VERSION sources"
-		git archive -v --format=tar.gz -o${QT_SOURCE_PKG} --remote=git://anongit.kde.org/android-qt.git ${QT_BRANCH} || fail
+		git archive -v --format=${SOURCE_FORMAT} -o${QT_SOURCE_PKG} --remote=git://anongit.kde.org/android-qt.git ${QT_BRANCH} || fail
 	fi
 }
 
 unpack_source()
 {
 	echo "-- Unpacking Qt $QT_VERSION sources"
+        rm -rf src
 	mkdir -p src
-	ll
 	pushd src
 	echo "tar -xzpf $QT_SOURCE_PKG"
-	tar -xzpf $QT_SOURCE_PKG || download_source -f && tar -xzpf ../$QT_SOURCE_PKG || fail
+	tar -${UNTAR_KEYS} $QT_SOURCE_PKG || download_source -f && tar -${UNTAR_KEYS} $QT_SOURCE_PKG || fail
 	popd
 }
 
@@ -63,9 +65,7 @@ build_source()
 	# Build and install
 	DEBUG=0
 	ANDROID_API_LEVEL=8
-	ROOTDIR=$PWD
 	NDK_TOOLCHAIN_VERSION=4.6
-
 	echo "Building Qt..."
 	# Options:
 	# -q 1 - Configure qt and compile qt
@@ -76,7 +76,7 @@ build_source()
 	# -k 1 - Install Qt
 	# -i <folder> - Install Qt to <folder>
 	# -v 4.4.3. - NDK toolchain version
-	android/androidconfigbuild.sh -n $ANDROID_NDK -q 1 -d $DEBUG -x 1 -l $ANDROID_API_LEVEL -h 0 -k 1 -i $ROOTDIR -v $NDK_TOOLCHAIN_VERSION || fail
+	android/androidconfigbuild.sh -n $ANDROID_NDK -q 1 -d $DEBUG -x 1 -l $ANDROID_API_LEVEL -h 0 -k 1 -i $QT_INSTALL_DIR -v $NDK_TOOLCHAIN_VERSION || fail
 
 	echo "-- Stopping crazy disk usage"
 	rm -rf $QT_INSTALL_DIR/doc/html
