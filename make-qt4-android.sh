@@ -11,7 +11,7 @@ QT_BRANCH="beta2"
 QT_VERSION="4.8.2"
 QT_SOURCE_DIR="src"
 QT_SOURCE_PKG="$PWD/qt-necessitas-$QT_BRANCH.${SOURCE_FORMAT}"
-QT_LIB_PKG="qt-android-$QT_BRANCH.tar.gz"
+QT_LIB_PKG="qt-android-$QT_VERSION-armv7.tar.gz"
 QT_INSTALL_DIR=$PWD
 CPU_CORES_COUNT=$(expr $(sysctl -A 2>&1 |grep 'hw\.ncpu:' |sed "s/^hw\.ncpu: \([0-9]*\)/\1/") + 1)
 
