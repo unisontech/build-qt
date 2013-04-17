@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 :: Default installation path
 @if "%OPENSSL_PATH%"=="" @set OPENSSL_PATH=C:\OpenSSL-Win32
