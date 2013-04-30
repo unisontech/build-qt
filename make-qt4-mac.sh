@@ -32,6 +32,8 @@ unpack_source()
 	echo "-- Unpacking Qt $QT_VERSION sources"
 	tar -xzf $QT_SOURCE_PKG || fail
 	mv $QT_SOURCE_DIR $QT_INSTALL_DIR
+	# FIX for clang
+	sed -i "" -e "s/::TabletProximityRec/TabletProximityRec/g" $QT_INSTALL_DIR/src/gui/kernel/qt_cocoa_helpers_mac_p.h
 }
 
 build_source()
